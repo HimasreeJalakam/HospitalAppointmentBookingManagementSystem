@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Models.DbContext;
+using Models.Data;
 using Models.Models;
 
 
@@ -18,8 +18,12 @@ public class NotificationController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllNotifications() =>
-Ok(await _context.Notifications.ToListAsync());
+    public IActionResult GetAllNotifications()
+    {
+        var notifications = _context.Notifications.ToList();
+        return Ok(notifications);
+    }
+    
 
 }
 

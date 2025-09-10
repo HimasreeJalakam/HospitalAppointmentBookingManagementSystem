@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Models.DbContext;
+using Models.Data;
 
 namespace API.Controllers
 {
@@ -18,6 +18,17 @@ namespace API.Controllers
         {
             var persons = _context.People.ToList();
             return Ok(persons);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            var person = _context.People.Find(id);
+            if (person == null)
+            {
+                return NotFound();
+            }
+            return Ok(person);
         }
     }
 }

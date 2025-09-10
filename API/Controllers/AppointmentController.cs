@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Models.DbContext;
+using Models.Data;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
