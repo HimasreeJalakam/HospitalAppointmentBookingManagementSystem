@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Models.ScaffoldModels;
+using Models.Models;
 
 
-namespace Models.ScaffoldDbContext
+namespace Models.DbContext
 {
-    public partial class AppDbContext : DbContext
+    public partial class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)

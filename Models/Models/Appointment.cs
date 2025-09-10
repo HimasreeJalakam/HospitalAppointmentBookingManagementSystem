@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Models.ScaffoldModels
+namespace Models.Models
 {
     public partial class Appointment
     {
