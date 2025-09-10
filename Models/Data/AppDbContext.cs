@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Models.Models;
 
 
-namespace Models.DbContext
+namespace Models.Data 
 {
-    public partial class AppDbContext : Microsoft.EntityFrameworkCore.DbContext
+    public partial class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
