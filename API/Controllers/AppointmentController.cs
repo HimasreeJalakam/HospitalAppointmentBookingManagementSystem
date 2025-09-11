@@ -87,19 +87,4 @@ public class AppointmentController : Controller
         return Ok(AppointmentToUpdateId);
 
     }
-
-    [HttpDelete]
-    [Route("/api/deleteAppointment")]
-    public IActionResult DeleteAppointment(
-        [FromQuery] int AppointmentId)
-    {
-        var AppointmentToDeleteId =  _context.Appointments.Find(AppointmentId);
-        if(AppointmentToDeleteId == null)
-        {
-            return NotFound("Enter AppointmentId To Be Deleted");
-        }
-        _context.Remove(AppointmentToDeleteId);
-        _context.SaveChanges(); 
-        return Ok(AppointmentToDeleteId);
-    }
 }
