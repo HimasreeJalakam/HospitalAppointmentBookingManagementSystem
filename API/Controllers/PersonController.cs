@@ -1,34 +1,42 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Models.Data;
+using Models.DTOs;
+using Models.Models;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PersonController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public PersonController(AppDbContext context)
+        private readonly PersonServices _personServices;
+        private readonly IConfiguration _configuration;
+        public PersonController(PersonServices personServices, IConfiguration configuration)
         {
-            _context = context;
-        }
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var persons = _context.People.ToList();
-            return Ok(persons);
+            _personServices = personServices;
+            _configuration = configuration;
         }
 
-        [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public IActionResult Login([FromQuery] LoginDto loginRequest)
         {
-            var person = _context.People.Find(id);
-            if (person == null)
+            // Check DB Object and validate
+            bool isValidUser = _personServices.ValidateUser(loginRequest.Email, loginRequest.Password);
+            if (!isValidUser)
             {
-                return NotFound();
+                return Unauthorized("Invalid username or password.");
             }
-            return Ok(person);
+
+            TokenGeneration jwtTokenString = new TokenGeneration(_configuration);
+            string tokenString = jwtTokenString.GenerateJWT(loginRequest.Email, "Admin", "Asset", "All");
+
+            return Ok(new { Token = tokenString });
         }
     }
 }
