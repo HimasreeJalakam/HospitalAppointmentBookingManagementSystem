@@ -56,7 +56,6 @@ public class NotificationController : Controller
             DoctorId = DoctorId,
             PatientId = PatientId,
             Message = Message,
-            Timestamp = DateTime.Now,
             CreatedAt = DateTime.Now
         };
         _context.Notifications.Add(newNotification);
@@ -84,7 +83,6 @@ public class NotificationController : Controller
         notificationToUpdate.DoctorId = DoctorId;
         notificationToUpdate.PatientId = PatientId;
         notificationToUpdate.Message = Message;
-        notificationToUpdate.Timestamp = DateTime.Now;
         // Keep CreatedAt unchanged
 
         _context.Update(notificationToUpdate);

@@ -33,7 +33,7 @@ public class AppointmentController : Controller
     [Route("/api/createAppointments")]
     public IActionResult AddAppointment(
         [FromQuery] string TimeSlotId,
-        [FromQuery] DateTime AppointmentDate,
+        [FromQuery] DateOnly AppointmentDate,
         [FromQuery] int DoctorId,
         [FromQuery] int PatientId,
         [FromQuery] string Status
@@ -63,7 +63,7 @@ public class AppointmentController : Controller
     public IActionResult UpdateAppointment(
         [FromQuery] int AppointmentId,
         [FromQuery] string TimeSlotId,
-        [FromQuery] DateTime AppointmentDate,
+        [FromQuery] DateOnly AppointmentDate,
         [FromQuery] int DoctorId,
         [FromQuery] int PatientId,
         [FromQuery] string Status)

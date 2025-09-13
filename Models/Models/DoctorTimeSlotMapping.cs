@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Models.Models
+namespace Models.Models;
+
+public partial class DoctorTimeSlotMapping
 {
-    public partial class DoctorTimeSlotMapping
-    {
-        public int MappingId { get; set; }
+    public int MappingId { get; set; }
 
-        public int DoctorId { get; set; }
+    public int DoctorId { get; set; }
 
-        public string? TimeSlotId { get; set; }
+    public string? TimeSlotId { get; set; }
 
-        public bool IsAvailable { get; set; }
+    public DateOnly? AppointmentDate { get; set; }
 
-        public virtual Doctor Doctor { get; set; } = null!;
+    public bool IsAvailable { get; set; }
 
-        public virtual TimeSlot? TimeSlot { get; set; }
-    }
+    public virtual Doctor Doctor { get; set; } = null!;
+
+    public virtual TimeSlot? TimeSlot { get; set; }
 }
