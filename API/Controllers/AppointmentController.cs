@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Models.Data;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class AppointmentController : Controller
 {
     private readonly AppDbContext _context;
