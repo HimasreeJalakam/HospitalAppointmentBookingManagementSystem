@@ -1,3 +1,4 @@
+using FileUpload.Controllers;
 using Infrastructure.Interfaces;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -26,7 +27,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<PersonServices>();
 builder.Services.AddScoped<ITreatmentDoneServices,TreatmentDoneServices>();
 builder.Services.AddScoped<INotificationServices,NotificationServices>();
-builder.Services.AddScoped<IAppointmentServices, AppointmentService>();
+builder.Services.AddScoped<AppointmentService>();
+builder.Services.AddScoped<MedicalHistoryService>();
+
 
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 builder.Services.AddAuthentication(x =>

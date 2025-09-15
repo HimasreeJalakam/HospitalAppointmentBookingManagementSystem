@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 
 namespace Models.Models;
@@ -13,7 +14,7 @@ public partial class MedicalHistory
 
     public int Tid { get; set; }
 
-    public byte[]? Records { get; set; }
+    public string Records { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
