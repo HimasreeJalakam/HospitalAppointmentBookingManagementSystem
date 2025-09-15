@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Infrastructure.Interfaces;
+using Infrastructure.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.Data;
+using Models.Dto;
 using Models.Models;
 
 
@@ -10,88 +13,48 @@ namespace API.Controllers;
 [ApiController]
 public class NotificationController : Controller
 {
-    private readonly AppDbContext _context;
+    private readonly INotificationServices _notificationservice;
 
-    public NotificationController(AppDbContext context)
+    public NotificationController(INotificationServices notificationservice, PersonServices personServices)
     {
-        _context = context;
+        _notificationservice = notificationservice;
     }
 
     [HttpGet("all notifications")]
     public IActionResult GetAllNotifications()
     {
-        var notifications = _context.Notifications.ToList();
+        var notifications = _notificationservice.GetAll();
         return Ok(notifications);
     }
 
 
     [HttpGet]
-    [Route("/api/getNotificationsByNotificationId/{NotificationId}")]
-    public ActionResult<Notification> GetNotificationById(int NotificationId)
+    [Route("/api/getNotificationsByPersonId/{personId}")]
+    public ActionResult<Notification> GetNotificationById(int personId)
     {
-        var notification = _context.Notifications.Find(NotificationId);
+        var notification = _notificationservice.GetById(personId);
         if (notification == null)
         {
-            return NotFound($"Notification with ID {NotificationId} not found.");
+            return NotFound($"Notification with ID {personId} not found.");
         }
         return Ok(notification);
     }
-    
+
     [HttpPost]
     [Route("/api/createNotification")]
-    public IActionResult AddNotification(
-    [FromQuery] int AppointmentId,
-    [FromQuery] int DoctorId,
-    [FromQuery] int PatientId,
-    [FromQuery] string Message)
+    public IActionResult AddNotification([FromQuery] NotificationDto dto)
     {
-        if (AppointmentId == 0 || DoctorId == 0 || PatientId == 0 || string.IsNullOrEmpty(Message))
-        {
-            return BadRequest("Invalid input");
-        }
-
         var newNotification = new Notification
         {
-            AppointmentId = AppointmentId,
-            DoctorId = DoctorId,
-            PatientId = PatientId,
-            Message = Message,
+            AppointmentId = dto.AppointmentId,
+            DoctorId = dto.DoctorId,
+            PatientId = dto.PatientId,
+            Message = dto.Message,
             Timestamp = DateTime.Now,
             CreatedAt = DateTime.Now
         };
-        _context.Notifications.Add(newNotification);
-        _context.SaveChanges();
-
+        _notificationservice.Create(newNotification);
         return Ok(newNotification);
     }
-
-    [HttpPatch]
-    [Route("/api/updateNotification")]
-    public IActionResult UpdateNotification(
-    [FromQuery] int NotificationId,
-    [FromQuery] int AppointmentId,
-    [FromQuery] int DoctorId,
-    [FromQuery] int PatientId,
-    [FromQuery] string Message)
-    {
-        var notificationToUpdate = _context.Notifications.Find(NotificationId);
-        if (notificationToUpdate == null)
-        {
-            return NotFound("Enter NotificationId to be updated");
-        }
-
-        notificationToUpdate.AppointmentId = AppointmentId;
-        notificationToUpdate.DoctorId = DoctorId;
-        notificationToUpdate.PatientId = PatientId;
-        notificationToUpdate.Message = Message;
-        notificationToUpdate.Timestamp = DateTime.Now;
-        // Keep CreatedAt unchanged
-
-        _context.Update(notificationToUpdate);
-        _context.SaveChanges();
-
-        return Ok(notificationToUpdate);
-    }
-
 
 }

@@ -1,9 +1,11 @@
+using Infrastructure.Interfaces;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Models.Data;
+using Models.Models;
 using System.Text;
 
 
@@ -21,6 +23,8 @@ builder.Services.AddScoped<DB>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<PersonServices>();
+builder.Services.AddScoped<ITreatmentDoneServices>();
+builder.Services.AddScoped<INotificationServices>();
 
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 builder.Services.AddAuthentication(x =>
