@@ -50,7 +50,6 @@ public class NotificationController : Controller
             DoctorId = dto.DoctorId,
             PatientId = dto.PatientId,
             Message = dto.Message,
-            Timestamp = DateTime.Now,
             CreatedAt = DateTime.Now
         };
         _notificationservice.Create(newNotification);
