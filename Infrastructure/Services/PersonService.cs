@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Interfaces;
 using Models.Data;
+using Models.Models;
 
 namespace Infrastructure.Services
 {
@@ -17,6 +18,11 @@ namespace Infrastructure.Services
                 .FirstOrDefault(u => u.Email == username && u.Password == password);
 
             return user != null;
+        }
+        
+        public Person GetPersonById(int personId)
+        {
+            return _context.People.Find(personId);
         }
 
     }
