@@ -42,7 +42,9 @@ namespace Infrastructure.Services
                 AppointmentDate = dto.AppointmentDate,
                 DoctorId = dto.DoctorId,
                 PatientId = dto.PatientId,
-                Status = dto.Status
+                Status = dto.Status,
+                CreatedAt = DateTime.Now,
+                IsDeleted = "No"
             };
             _context.Appointments.Add(newAppointment);
             _context.SaveChanges();

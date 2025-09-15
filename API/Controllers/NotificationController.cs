@@ -1,5 +1,6 @@
 using Infrastructure.Interfaces;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.Data;
@@ -11,6 +12,7 @@ using Models.Models;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class NotificationController : Controller
 {
     private readonly INotificationServices _notificationservice;
