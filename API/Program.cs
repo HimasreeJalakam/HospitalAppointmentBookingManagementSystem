@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Models.Data;
+using Models.Interfaces;
 using Models.Models;
 using System.Text;
 
@@ -25,6 +26,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<PersonServices>();
 builder.Services.AddScoped<ITreatmentDoneServices,TreatmentDoneServices>();
 builder.Services.AddScoped<INotificationServices,NotificationServices>();
+builder.Services.AddScoped<IAppointmentServices, AppointmentService>();
 
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 builder.Services.AddAuthentication(x =>
