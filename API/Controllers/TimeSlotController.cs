@@ -41,33 +41,4 @@ public class TimeSlotController : Controller
         return Ok(timeSlots);
 
     }
-
-    [HttpGet]
-    [Route("api/getTimeslotsByTimeSlotId/{TimeSlotId}")]
-    public IActionResult GetTimeSlotsById(string TimeSlotId)
-    {
-        string query = "SELECT TimeSlotId, StartTime, EndTime, IsAvailable FROM TimeSlot WHERE TimeSlotId = @TimeSlotId";
-
-        var parameters = new nameValuePairList
-    {
-        new nameValuePair("@TimeSlotId", TimeSlotId)
-    };
-
-        var dt = _db.FillAndReturnDataSet(query, parameters);
-
-        List<TimeSlot> timeSlots = new List<TimeSlot>();
-
-        foreach (System.Data.DataRow row in dt.Rows)
-        {
-            timeSlots.Add(new TimeSlot
-            {
-                TimeSlotId = row["TimeSlotId"].ToString()!,
-                StartTime = TimeOnly.Parse(row["StartTime"].ToString()!),
-                EndTime = TimeOnly.Parse(row["EndTime"].ToString()!),
-            });
-        }
-
-        return Ok(timeSlots);
-    }
-
 }
