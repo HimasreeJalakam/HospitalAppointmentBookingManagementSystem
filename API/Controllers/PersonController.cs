@@ -1,4 +1,5 @@
-﻿using Infrastructure.Services;
+﻿using Infrastructure.DTOs;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
@@ -37,6 +38,44 @@ namespace API.Controllers
             string tokenString = jwtTokenString.GenerateJWT(loginRequest.Email, "Admin", "Asset", "All");
 
             return Ok(new { Token = tokenString });
+        }
+        [HttpGet("GetAllPersons")]
+        public IActionResult GetAllPersons()
+        {
+            var persons = _personServices.GetAllPersons();
+            return Ok(persons);
+        }
+        [HttpGet("{id}")]
+        public IActionResult GetPersonById(int id)
+        {
+            var person = _personServices.GetPersonById(id);
+            if (person == null)
+            {
+                return NotFound();
+            }
+            return Ok(person);
+        }
+        [HttpPost("RegisterNewPerson")]
+        public IActionResult AddPerson([FromQuery] PersonDto personDto)
+        {
+            var addedPerson = _personServices.Add(personDto);
+            return Ok(addedPerson);
+        }
+        [HttpPut("{id}/UpdatePerson")]
+        public IActionResult UpdatePerson(int id, [FromQuery] PersonDto personDto)
+        {
+            var updatedPerson = _personServices.Update(id, personDto);
+            if (updatedPerson == null)
+            {
+                return NotFound();
+            }
+            return Ok(updatedPerson);
+        }
+        [HttpGet("role/{role}")]
+        public IActionResult GetByRole(string role)
+        {
+            var persons = _personServices.GetByRole(role);
+            return Ok(persons);
         }
     }
 }
