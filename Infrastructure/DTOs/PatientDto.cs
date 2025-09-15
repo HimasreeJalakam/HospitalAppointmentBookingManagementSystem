@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.DTOs
 {
-    public class RoleDto
+    public class PatientDto
     {
         public int PersonId { get; set; }
         public string FirstName { get; set; }
@@ -25,7 +25,7 @@ namespace Infrastructure.DTOs
 
         public string Email { get; set; }
 
-        public string Role { get; set; }
-
+        public string Dtype { get; set; }
+        public string Records { get; set; }
     }
 }

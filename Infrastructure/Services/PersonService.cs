@@ -25,10 +25,15 @@ namespace Infrastructure.Services
         {
             return _context.People.ToList();
         }
-        public Person? GetPersonById(int id)
+        public object GetPersonById(int id)
         {
-            return _context.People.FirstOrDefault(p => p.PersonId == id);
+            var person = _context.People.FirstOrDefault(p => p.PersonId == id);
+            if (person == null)
+                return null;
+
+            return person;
         }
+
         public PersonDto Add(PersonDto personDto)
         {
             var person = new Person
@@ -99,22 +104,53 @@ namespace Infrastructure.Services
             };
             return updated;
         }
-        public List<RoleDto> GetByRole(string role)
+        public List<object> GetByRole(string role)
         {
-            var persons = _context.People
-                .Where(p => p.Role.ToLower() == role.ToLower())
-                .Select(p => new RoleDto
-                {
-                    PersonId = p.PersonId,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Email = p.Email,
-                    PhoneNo = (long)p.PhoneNo,
-                    Role = p.Role
-                }).ToList();
+            role = role.ToLower();
 
-            return persons;
+            if (role == "doctor")
+            {
+                
+var result = _context.People
+    .Join(_context.Doctors,
+        person => person.PersonId,
+        doctor => doctor.PersonId,
+        (person, doctor) => new
+        {
+            person.PersonId,
+            Name = person.FirstName + " " + person.LastName,
+            DoctorSpeciality = doctor != null ? doctor.Speciality : "None"
+        })
+    .ToList<object>();
+
+                return result;
+            }
+            else if (role == "patient")
+            {
+                var patients = (from person in _context.People
+                                join medicalhistory in _context.MedicalHistories
+                                on person.PersonId equals medicalhistory.PatientId
+                                where person.Role.ToLower() == "patient"
+                                select new PatientDto
+                                {
+                                    PersonId = person.PersonId,
+                                    FirstName = person.FirstName,
+                                    LastName = person.LastName,
+                                    Email = person.Email,
+                                    PhoneNo = (long)person.PhoneNo,
+                                    Dtype = medicalhistory.Dtype,
+                                    Records = medicalhistory.Records
+                                }).ToList<object>();
+
+                return patients;
+            }
+
+            return new List<object>(); // Return empty if role doesn't match
         }
 
+        Person? IPersonService.GetPersonById(int id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

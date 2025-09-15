@@ -12,7 +12,7 @@ namespace Infrastructure.Interfaces
         PersonDto Add(PersonDto personDto);
 
         PersonDto Update(int id, PersonDto person);
-        List<RoleDto> GetByRole(string role);
+       
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Infrastructure.DTOs;
+using Infrastructure.Interfaces;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,9 +16,9 @@ namespace API.Controllers
     [Authorize]
     public class PersonController : ControllerBase
     {
-        private readonly PersonServices _personServices;
+        private readonly IPersonService _personServices;
         private readonly IConfiguration _configuration;
-        public PersonController(PersonServices personServices, IConfiguration configuration)
+        public PersonController(IPersonService personServices, IConfiguration configuration)
         {
             _personServices = personServices;
             _configuration = configuration;
@@ -71,11 +72,7 @@ namespace API.Controllers
             }
             return Ok(updatedPerson);
         }
-        [HttpGet("role/{role}")]
-        public IActionResult GetByRole(string role)
-        {
-            var persons = _personServices.GetByRole(role);
-            return Ok(persons);
-        }
+        
     }
+
 }

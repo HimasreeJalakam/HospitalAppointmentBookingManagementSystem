@@ -1,4 +1,5 @@
 ﻿using Infrastructure.DTOs;
+using Infrastructure.Interfaces;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,8 +10,8 @@ namespace API.Controllers
     [ApiController]
     public class DoctorController : ControllerBase
     {
-        private readonly DoctorServices _doctorServices;
-        public DoctorController(DoctorServices doctorServices)
+        private readonly IDoctorServices _doctorServices;
+        public DoctorController(IDoctorServices doctorServices)
         {
             _doctorServices = doctorServices;
         }
