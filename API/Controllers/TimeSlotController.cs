@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Models.Data;
 using Models.Models;
 using static Models.Data.DB;
@@ -6,6 +7,7 @@ using static Models.Data.DB;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class TimeSlotController : Controller
 {
 
@@ -33,7 +35,6 @@ public class TimeSlotController : Controller
                 TimeSlotId = row["TimeSlotId"].ToString()!,
                 StartTime = TimeOnly.Parse(row["StartTime"].ToString()!),
                 EndTime = TimeOnly.Parse(row["EndTime"].ToString()!),
-                IsAvailable = Convert.ToBoolean(row["IsAvailable"])
             });
         }
 
@@ -63,7 +64,6 @@ public class TimeSlotController : Controller
                 TimeSlotId = row["TimeSlotId"].ToString()!,
                 StartTime = TimeOnly.Parse(row["StartTime"].ToString()!),
                 EndTime = TimeOnly.Parse(row["EndTime"].ToString()!),
-                IsAvailable = Convert.ToBoolean(row["IsAvailable"])
             });
         }
 
