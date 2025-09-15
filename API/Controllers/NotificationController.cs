@@ -15,7 +15,7 @@ public class NotificationController : Controller
 {
     private readonly INotificationServices _notificationservice;
 
-    public NotificationController(INotificationServices notificationservice, PersonServices personServices)
+    public NotificationController(INotificationServices notificationservice)
     {
         _notificationservice = notificationservice;
     }
