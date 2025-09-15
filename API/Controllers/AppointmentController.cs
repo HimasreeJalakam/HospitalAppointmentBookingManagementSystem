@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Data;
+using Models.DTOs;
+using Models.Interfaces;
+using Models.Models;
 
 namespace API.Controllers;
 [Route("api/[controller]")]
@@ -8,16 +12,16 @@ namespace API.Controllers;
 [Authorize]
 public class AppointmentController : Controller
 {
-    private readonly AppDbContext _context;
-    public AppointmentController(AppDbContext context)
-    {
-        _context = context;
+    private readonly AppointmentService _appointmentService;
+    public AppointmentController(AppointmentService appointmentService)
+    {        
+        _appointmentService = appointmentService;
     }
     [HttpGet]
     [Route("/api/getAppointments")]
     public IActionResult GetAppointments()
     {
-        var appointments = _context.Appointments.ToList();
+        var appointments = _appointmentService.GetAll();
         return Ok(appointments);
     }
 
@@ -25,68 +29,33 @@ public class AppointmentController : Controller
     [Route("/api/getAppointmentsByPersonId/{PersonId}")]
     public IActionResult GetAppointmentsByPersonId(int PersonId)
     {
-        var appointments = _context.Appointments
-            .Where(a => a.DoctorId == PersonId || a.PatientId == PersonId)
-            .ToList();
+        var appointments = _appointmentService.GetByPersonId(PersonId);
         return Ok(appointments);
     }
 
     [HttpPost]
     [Route("/api/createAppointments")]
-    public IActionResult AddAppointment(
-        [FromQuery] string TimeSlotId,
-        [FromQuery] DateOnly AppointmentDate,
-        [FromQuery] int DoctorId,
-        [FromQuery] int PatientId,
-        [FromQuery] string Status
-        )
+    public IActionResult AddAppointment([FromQuery]AppointmentDto dto)
     {
-        if (TimeSlotId == null || AppointmentDate == null || DoctorId == 0 || PatientId == 0 || Status == null)
+        if (dto.TimeSlotId == null || dto.AppointmentDate == null || dto.DoctorId == 0 || dto.PatientId == 0 || dto.Status == null)
         {
             return BadRequest("Invalid input");
         }
-        var newAppointment = new Models.Models.Appointment
-        {
-            TimeSlotId = TimeSlotId,
-            AppointmentDate = AppointmentDate,
-            DoctorId = DoctorId,
-            PatientId = PatientId,
-            Status = Status,
-            CreatedAt = DateTime.Now,
-            IsDeleted = "No"
-        };
-        _context.Appointments.Add(newAppointment);
-        _context.SaveChanges();
-        return Ok(newAppointment);
+        _appointmentService.Create(dto);
+        return Ok(dto);
     }
 
     [HttpPatch]
     [Route("/api/updateAppointment")]
-    public IActionResult UpdateAppointment(
-        [FromQuery] int AppointmentId,
-        [FromQuery] string TimeSlotId,
-        [FromQuery] DateOnly AppointmentDate,
-        [FromQuery] int DoctorId,
-        [FromQuery] int PatientId,
-        [FromQuery] string Status)
+    public IActionResult UpdateAppointment([FromQuery]int AppointmentId,[FromQuery]AppointmentDto dto)
     {
-        var AppointmentToUpdateId = _context.Appointments.Find(AppointmentId);
-        if (AppointmentToUpdateId == null)
+        if (AppointmentId == null)
         {
             return NotFound("Enter AppointmentId To Be Update");
         }
-        AppointmentToUpdateId.AppointmentId = AppointmentId;
-        AppointmentToUpdateId.TimeSlotId = TimeSlotId;
-        AppointmentToUpdateId.AppointmentDate = AppointmentDate;
-        AppointmentToUpdateId.DoctorId = DoctorId;
-        AppointmentToUpdateId.PatientId = PatientId;
-        AppointmentToUpdateId.Status = Status;
-        AppointmentToUpdateId.CreatedAt = DateTime.Now;
-        AppointmentToUpdateId.IsDeleted = "No";
 
-        _context.Update(AppointmentToUpdateId);
-        _context.SaveChanges();
-        return Ok(AppointmentToUpdateId);
+        _appointmentService.Update(AppointmentId,dto);
+        return Ok("Appointment Id : "+AppointmentId +" has been updated.");
 
     }
 }
