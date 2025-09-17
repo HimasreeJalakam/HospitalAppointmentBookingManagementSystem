@@ -27,7 +27,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ITreatmentDoneServices,TreatmentDoneServices>();
 builder.Services.AddScoped<INotificationServices,NotificationServices>();
 builder.Services.AddScoped<IDoctorServices, DoctorServices>();
-builder.Services.AddScoped<PersonServices>();
+builder.Services.AddScoped<IPersonService,PersonServices>();
 builder.Services.AddScoped<AppointmentService>();
 builder.Services.AddScoped<MedicalHistoryService>();
 
