@@ -54,7 +54,7 @@ namespace FileUpload.Controllers
         }
 
 
-        [HttpGet("DisplayMedicalHistory/{HistoryId}")]
+        [HttpGet("DisplayMedicalHistory")]
         public IActionResult DisplayFile([FromQuery]int HistoryId)
         {
             var medicalHistory = _context.MedicalHistories.Find(HistoryId);
