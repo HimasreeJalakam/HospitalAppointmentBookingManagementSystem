@@ -15,11 +15,18 @@ namespace API.Controllers
         {
             _doctorServices = doctorServices;
         }
-        [HttpPost("{personId}/getSpeciality")]
+        [HttpPost("addSpeciality/{personId}")]
         public IActionResult AddSpeciality(int personId, [FromQuery] SpecialityDto dto)
         {
-            var speciality = _doctorServices.AddSpeciality(personId, dto);
-            return Ok(speciality);
+            try
+            {
+                var result = _doctorServices.AddSpeciality(personId, dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
         [HttpPut("{personId}/updateSpeciality")]
         public IActionResult UpdateSpeciality(int personId, [FromQuery] SpecialityDto dto)

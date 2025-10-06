@@ -13,7 +13,7 @@ public partial class DoctorTimeSlotMapping
 
     public DateOnly? AppointmentDate { get; set; }
 
-    public bool IsAvailable { get; set; }
+    public int IsAvailable { get; set; }
 
     public virtual Doctor Doctor { get; set; } = null!;
 

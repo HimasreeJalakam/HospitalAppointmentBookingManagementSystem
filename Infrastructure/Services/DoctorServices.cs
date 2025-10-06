@@ -19,8 +19,14 @@ namespace Infrastructure.Services
         }
         public SpecialityDto AddSpeciality(int personId, SpecialityDto dto)
         {
-            _context.Database.ExecuteSqlInterpolated(
-                $"EXEC Doctor {personId}, {dto.Speciality}, {dto.YearsOfReg}"
+            // Check if doctor already exists
+            var existingDoctor = _context.Doctors.FirstOrDefault(d => d.PersonId == personId);
+            if (existingDoctor != null)
+                throw new Exception("This doctor already exists in the Doctor table.");
+
+            // If not exists, call stored procedure to insert
+            _context.Database.ExecuteSqlRaw(
+                $"EXEC ListBasedOnDoctor {personId}, {dto.Speciality}, {dto.YearsOfReg}"
             );
 
             return dto;
