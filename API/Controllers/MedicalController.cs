@@ -1,4 +1,5 @@
 ﻿using Infrastructure.DTOs;
+using Infrastructure.Interfaces;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,8 +17,8 @@ namespace FileUpload.Controllers
     {
         private readonly string _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
         private readonly AppDbContext _context;
-        private readonly MedicalHistoryService _history;
-        public MedicalController(AppDbContext context,MedicalHistoryService history)
+        private readonly IMedicalHistoryService _history;
+        public MedicalController(AppDbContext context,IMedicalHistoryService history)
         {
             _context = context;
             _history = history;

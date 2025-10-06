@@ -28,8 +28,8 @@ builder.Services.AddScoped<ITreatmentDoneServices,TreatmentDoneServices>();
 builder.Services.AddScoped<INotificationServices,NotificationServices>();
 builder.Services.AddScoped<IDoctorServices, DoctorServices>();
 builder.Services.AddScoped<IPersonService,PersonServices>();
-builder.Services.AddScoped<AppointmentService>();
-builder.Services.AddScoped<MedicalHistoryService>();
+builder.Services.AddScoped<IAppointmentServices,AppointmentService>();
+builder.Services.AddScoped<IMedicalHistoryService,MedicalHistoryService>();
 
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 builder.Services.AddAuthentication(x =>

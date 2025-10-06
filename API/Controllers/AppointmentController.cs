@@ -9,11 +9,11 @@ using Models.Models;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class AppointmentController : Controller
 {
-    private readonly AppointmentService _appointmentService;
-    public AppointmentController(AppointmentService appointmentService)
+    private readonly IAppointmentServices _appointmentService;
+    public AppointmentController(IAppointmentServices appointmentService)
     {        
         _appointmentService = appointmentService;
     }
