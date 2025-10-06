@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.DTOs
 {
-    public class PersonDto
+    public class PersonDisplayDto
     {
-      
+        public int PersonId { get; set; }
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
@@ -27,6 +27,6 @@ namespace Infrastructure.DTOs
 
         public string Role { get; set; }
 
-        public string Password { get; set; }
+
     }
 }

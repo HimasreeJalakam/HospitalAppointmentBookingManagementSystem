@@ -1,5 +1,6 @@
 ﻿using Infrastructure.DTOs;
 using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Models.Data;
 using Models.Models;
 
@@ -21,17 +22,47 @@ namespace Infrastructure.Services
             return user != null;
         }
 
-        public List<Person> GetAllPersons()
+        public List<PersonDisplayDto> GetAllPersons()
         {
-            return _context.People.ToList();
+            var peoples = _context.People
+                .Select(p => new PersonDisplayDto
+                {
+                    PersonId = p.PersonId,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Dob = p.Dob ?? default,
+                    Gender = p.Gender,
+                    Address = p.Address,
+                    PhoneNo = p.PhoneNo ?? 0,
+                    AltNo = p.AltNo ?? 0,
+                    Email = p.Email,
+                    Role = p.Role,
+                }).ToList();
+
+            return peoples;
         }
-        public object GetPersonById(int id)
+
+        public PersonDisplayDto GetPersonById(int id)
         {
             var person = _context.People.FirstOrDefault(p => p.PersonId == id);
-            if (person == null)
-                return null;
+            if (person != null)
+            {
+                return new PersonDisplayDto
+                {
+                    PersonId = person.PersonId,
+                    FirstName = person.FirstName,
+                    LastName = person.LastName,
+                    Dob = (DateOnly)person.Dob,
+                    Email = person.Email,
+                    Gender = person.Gender,
+                    Address = person.Address,
+                    PhoneNo = (long)person.PhoneNo,
+                    AltNo = (long)person.AltNo,
+                    Role = person.Role
 
-            return person;
+                };
+            }
+            return null;
         }
 
         public PersonDto Add(PersonDto personDto)
@@ -48,6 +79,7 @@ namespace Infrastructure.Services
                 Email = personDto.Email,
                 Role = personDto.Role,
                 Password = personDto.Password,
+
                 CreatedAt = DateTime.Now
             };
             _context.People.Add(person);
@@ -104,53 +136,84 @@ namespace Infrastructure.Services
             };
             return updated;
         }
-        public List<object> GetByRole(string role)
+        public object GetPersonDetailsByRole(string role)
         {
-            role = role.ToLower();
+            if (string.IsNullOrWhiteSpace(role))
+                return null;
 
-            if (role == "doctor")
+            var normalizedRole = role.Trim().ToLower();
+
+            if (normalizedRole == "doctor")
             {
-                
-var result = _context.People
-    .Join(_context.Doctors,
-        person => person.PersonId,
-        doctor => doctor.PersonId,
-        (person, doctor) => new
-        {
-            person.PersonId,
-            Name = person.FirstName + " " + person.LastName,
-            DoctorSpeciality = doctor != null ? doctor.Speciality : "None"
-        })
-    .ToList<object>();
+                var doctors = _context.People
+                              .Include(p => p.Doctors)
+                              .Where(p => p.Role != null && p.Role.Trim().ToLower() == "doctor")
+                              .Select(p => new DoctorDto
+                              {
+                                PersonId = p.PersonId,
+                                FirstName = p.FirstName,
+                                LastName = p.LastName,
+                                Email = p.Email,
+                                Gender = p.Gender,
+                                Dob = p.Dob.HasValue ? p.Dob.Value : default,
+                                PhoneNo = p.PhoneNo.HasValue ? p.PhoneNo.Value : 0,
+                                Address = p.Address,
+                                AltNo = p.AltNo.HasValue ? p.AltNo.Value : 0,
+                                Speciality = p.Doctors.Select(d => d.Speciality).FirstOrDefault(),
+                                YearsOfReg = p.Doctors.Select(d => d.YearsOfReg.HasValue ? d.YearsOfReg.Value : 0).FirstOrDefault()
+                            })
+                            .ToList();
 
-                return result;
+
+                return doctors;
             }
-            else if (role == "patient")
+            else if (normalizedRole == "patient")
             {
-                var patients = (from person in _context.People
-                                join medicalhistory in _context.MedicalHistories
-                                on person.PersonId equals medicalhistory.PatientId
-                                where person.Role.ToLower() == "patient"
-                                select new PatientDto
-                                {
-                                    PersonId = person.PersonId,
-                                    FirstName = person.FirstName,
-                                    LastName = person.LastName,
-                                    Email = person.Email,
-                                    PhoneNo = (long)person.PhoneNo,
-                                    Dtype = medicalhistory.Dtype,
-                                    Records = medicalhistory.Records
-                                }).ToList<object>();
+                var patients = _context.People
+                               .Include(p => p.MedicalHistories)
+                               .Where(p => p.Role != null && p.Role.Trim().ToLower() == "patient")
+                               .Select(p => new PatientDto
+                                            {
+                                PersonId = p.PersonId,
+                                FirstName = p.FirstName,
+                                LastName = p.LastName,
+                                Dob = p.Dob.HasValue ? p.Dob.Value : default,
+                                PhoneNo = p.PhoneNo.HasValue ? p.PhoneNo.Value : 0,
+                                Address = p.Address,
+                                AltNo = p.AltNo.HasValue ? p.AltNo.Value : 0,
+                                Email = p.Email,
+                                Gender = p.Gender,
+                                Dtype = p.MedicalHistories.Select(m => m.Dtype).FirstOrDefault(),
+                                Records = p.MedicalHistories.Select(m => m.Records).FirstOrDefault()
+                            })
+                            .ToList();
+
 
                 return patients;
             }
+            else if (normalizedRole == "staff")
+            {
+                var staff = _context.People
+                    .Where(p => p.Role != null && p.Role.Trim().ToLower() == "staff")
+                    .Select(p => new StaffDto
+                    {
+                        PersonId = p.PersonId,
+                        FirstName = p.FirstName,
+                        LastName = p.LastName,
+                        Dob = p.Dob.HasValue ? p.Dob.Value : default,
+                        Gender = p.Gender,
+                        PhoneNo = p.PhoneNo.HasValue ? p.PhoneNo.Value : 0,
+                        AltNo = p.AltNo.HasValue ? p.AltNo.Value : 0,
+                        Email = p.Email,
+                        Address = p.Address
+                    })
+                    .ToList();
 
-            return new List<object>(); // Return empty if role doesn't match
+                return staff;
+            }
+
+            return null;
         }
 
-        Person? IPersonService.GetPersonById(int id)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
