@@ -15,6 +15,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngularApp",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:4200") // Angular app URL
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
+
 builder.Services.AddControllers().
     AddJsonOptions(options =>
     { 
@@ -35,9 +47,19 @@ builder.Services.AddScoped<IDoctorServices, DoctorServices>();
 builder.Services.AddScoped<IPersonService,PersonServices>();
 builder.Services.AddScoped<IAppointmentServices,AppointmentService>();
 builder.Services.AddScoped<IMedicalHistoryService,MedicalHistoryService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular",
+        policy => policy.WithOrigins("http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+});
+
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<EmailService>();
+
 
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
 builder.Services.AddAuthentication(x =>
@@ -87,8 +109,6 @@ builder.Services.AddSwaggerGen(c =>
          });
 });
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -98,7 +118,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseCors("AllowAngularApp");
 app.MapControllers();
 
 app.Run();

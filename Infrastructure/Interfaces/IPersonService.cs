@@ -10,7 +10,8 @@ namespace Infrastructure.Interfaces
         object GetPersonDetailsByRole(string role);
         PersonDisplayDto GetPersonById(int id);
         PersonDto Add(PersonDto personDto);
-
+        public int GetCount(string role);
+     
         PersonDto Update(int id, PersonDto person);
 
 
