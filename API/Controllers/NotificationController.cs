@@ -54,8 +54,8 @@ public class NotificationController : Controller
             Message = dto.Message,
             CreatedAt = DateTime.Now
         };
-        _notificationservice.Create(newNotification);
-        return Ok(newNotification);
+        var result = _notificationservice.Create(newNotification);
+        return Ok(result);
     }
 
 }

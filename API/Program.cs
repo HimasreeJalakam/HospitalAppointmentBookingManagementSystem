@@ -47,6 +47,7 @@ builder.Services.AddScoped<IDoctorServices, DoctorServices>();
 builder.Services.AddScoped<IPersonService,PersonServices>();
 builder.Services.AddScoped<IAppointmentServices,AppointmentService>();
 builder.Services.AddScoped<IMedicalHistoryService,MedicalHistoryService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular",
@@ -55,6 +56,9 @@ builder.Services.AddCors(options =>
                         .AllowAnyMethod());
 });
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<EmailService>();
 
 
 var key = builder.Configuration.GetValue<string>("ApiSettings:Secret");
