@@ -42,6 +42,20 @@ namespace Infrastructure.Services
             }
             return dto;
         }
+        public DoctorDto getBySpeciality(string speciality)
+        {
+            var doctors = _context.Doctors.Where(d => d.Speciality.ToLower() == speciality.ToLower())
+                .Include(d => d.Person)
+                .Select(d => new DoctorDto
+                {
+                    PersonId = (int)d.PersonId,
+                    FirstName = d.Person.FirstName,
+                    LastName = d.Person.LastName,
+                    Dob = d.Person.Dob ?? default,
+                    Speciality = d.Speciality,
+                }).ToList();
+            return doctors.FirstOrDefault();
+        }
 
 
     }

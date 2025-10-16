@@ -11,5 +11,6 @@ namespace Infrastructure.Interfaces
     {
         SpecialityDto AddSpeciality(int personId, SpecialityDto dto);
         SpecialityDto UpdatingSpeciality(int personId, SpecialityDto dto);
+        public DoctorDto getBySpeciality(string speciality);
     }
 }

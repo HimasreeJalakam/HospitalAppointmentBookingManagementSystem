@@ -106,13 +106,19 @@ namespace API.Controllers
         [AllowAnonymous]
         [HttpPost("RegisterNewPerson")]
 
-        public IActionResult AddPerson([FromQuery] PersonDto personDto)
+        public IActionResult AddPerson([FromBody] PersonDto personDto)
 
         {
 
             var addedPerson = _personServices.Add(personDto);
 
-            return Ok(addedPerson);
+
+ return Ok(new
+ {
+     personId = addedPerson.PersonId,
+     role = addedPerson.Role
+ });
+
 
         }
 
@@ -141,6 +147,13 @@ namespace API.Controllers
             var rolePerson = _personServices.GetPersonDetailsByRole(role);
             return Ok(rolePerson);
         }
+        [HttpGet("Count")]
+        public IActionResult GetCount([FromQuery] string role)
+        {
+            var NoOfPersons = _personServices.GetCount(role);
+            return Ok(NoOfPersons);
+        }
+       
 
 
     }

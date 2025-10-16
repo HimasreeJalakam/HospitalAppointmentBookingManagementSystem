@@ -3,7 +3,6 @@ using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Models.Data;
 using Models.Models;
-
 namespace Infrastructure.Services
 {
     public class PersonServices : IPersonService
@@ -13,7 +12,6 @@ namespace Infrastructure.Services
         {
             _context = context;
         }
-
         public bool ValidateUser(string username, string password)
         {
             var user = _context.People
@@ -21,7 +19,6 @@ namespace Infrastructure.Services
 
             return user != null;
         }
-
         public List<PersonDisplayDto> GetAllPersons()
         {
             var peoples = _context.People
@@ -41,7 +38,6 @@ namespace Infrastructure.Services
 
             return peoples;
         }
-
         public PersonDisplayDto GetPersonById(int id)
         {
             var person = _context.People.FirstOrDefault(p => p.PersonId == id);
@@ -64,7 +60,6 @@ namespace Infrastructure.Services
             }
             return null;
         }
-
         public PersonDto Add(PersonDto personDto)
         {
             var person = new Person
@@ -86,7 +81,8 @@ namespace Infrastructure.Services
 
             _context.SaveChanges();
             var added = new PersonDto
-            {
+
+            {   PersonId=person.PersonId,
                 FirstName = person.FirstName,
                 LastName = person.LastName,
                 Dob = (DateOnly)person.Dob,
@@ -97,8 +93,6 @@ namespace Infrastructure.Services
                 Email = person.Email,
                 Role = person.Role,
                 Password = person.Password
-
-
             };
             return added;
         }
@@ -120,7 +114,6 @@ namespace Infrastructure.Services
             person.Role = personDto.Role;
             person.Password = personDto.Password;
             _context.SaveChanges();
-
             var updated = new PersonDto
             {
                 FirstName = person.FirstName,
@@ -140,9 +133,7 @@ namespace Infrastructure.Services
         {
             if (string.IsNullOrWhiteSpace(role))
                 return null;
-
             var normalizedRole = role.Trim().ToLower();
-
             if (normalizedRole == "doctor")
             {
                 var doctors = _context.People
@@ -150,21 +141,19 @@ namespace Infrastructure.Services
                               .Where(p => p.Role != null && p.Role.Trim().ToLower() == "doctor")
                               .Select(p => new DoctorDto
                               {
-                                PersonId = p.PersonId,
-                                FirstName = p.FirstName,
-                                LastName = p.LastName,
-                                Email = p.Email,
-                                Gender = p.Gender,
-                                Dob = p.Dob.HasValue ? p.Dob.Value : default,
-                                PhoneNo = p.PhoneNo.HasValue ? p.PhoneNo.Value : 0,
-                                Address = p.Address,
-                                AltNo = p.AltNo.HasValue ? p.AltNo.Value : 0,
-                                Speciality = p.Doctors.Select(d => d.Speciality).FirstOrDefault(),
-                                YearsOfReg = p.Doctors.Select(d => d.YearsOfReg.HasValue ? d.YearsOfReg.Value : 0).FirstOrDefault()
-                            })
+                                  PersonId = p.PersonId,
+                                  FirstName = p.FirstName,
+                                  LastName = p.LastName,
+                                  Email = p.Email,
+                                  Gender = p.Gender,
+                                  Dob = p.Dob.HasValue ? p.Dob.Value : default,
+                                  PhoneNo = p.PhoneNo.HasValue ? p.PhoneNo.Value : 0,
+                                  Address = p.Address,
+                                  AltNo = p.AltNo.HasValue ? p.AltNo.Value : 0,
+                                  Speciality = p.Doctors.Select(d => d.Speciality).FirstOrDefault(),
+                                  YearsOfReg = p.Doctors.Select(d => d.YearsOfReg.HasValue ? d.YearsOfReg.Value : 0).FirstOrDefault()
+                              })
                             .ToList();
-
-
                 return doctors;
             }
             else if (normalizedRole == "patient")
@@ -187,8 +176,6 @@ namespace Infrastructure.Services
                                 Records = p.MedicalHistories.Select(m => m.Records).FirstOrDefault()
                             })
                             .ToList();
-
-
                 return patients;
             }
             else if (normalizedRole == "staff")
@@ -208,12 +195,13 @@ namespace Infrastructure.Services
                         Address = p.Address
                     })
                     .ToList();
-
                 return staff;
             }
-
             return null;
         }
-
+        public int GetCount(string role)
+        {
+            return _context.People.Count(p => p.Role.ToLower() == role.ToLower()); 
+        }       
     }
 }

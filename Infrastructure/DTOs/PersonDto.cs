@@ -8,6 +8,7 @@ namespace Infrastructure.DTOs
 {
     public class PersonDto
     {
+        public int PersonId { get; set; }
       
         public string FirstName { get; set; }
 
