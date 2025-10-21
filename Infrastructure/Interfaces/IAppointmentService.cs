@@ -9,6 +9,7 @@ namespace Models.Interfaces
         List<Appointment> GetByPersonId(int personId);
         List<Appointment> GetAppointmentsByDate(DateOnly date);
         List<Appointment> GetAppointmentsByStatus(string status);
+        public int GetCountAppointment();
         Appointment Create(AppointmentDto dto);
         Appointment Update(int appointmentId, AppointmentDto dto);
         Appointment CancelledAppointment(int appointmentId);
