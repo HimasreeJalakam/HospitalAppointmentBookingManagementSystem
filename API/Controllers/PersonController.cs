@@ -45,35 +45,40 @@ namespace API.Controllers
             _configuration = configuration;
 
         }
-        [AllowAnonymous]
 
         [HttpPost("login")]
-
         public IActionResult Login([FromBody] LoginDto loginRequest)
-
         {
+            var user = _personServices.ValidateUser(loginRequest.Email, loginRequest.Password);
 
-            // Check DB Object and validate
-
-            bool isValidUser = _personServices.ValidateUser(loginRequest.Email, loginRequest.Password);
-
-            if (!isValidUser)
-
+            if (user == null)
             {
-
                 return Unauthorized("Invalid username or password.");
-
             }
 
-            TokenGeneration jwtTokenString = new TokenGeneration(_configuration);
+            // Create token generator instance
+            var jwtTokenGenerator = new TokenGeneration(_configuration);
 
-            string tokenString = jwtTokenString.GenerateJWT(loginRequest.Email, "Admin", "Asset", "All");
+            // Generate JWT with user details
+            string tokenString = jwtTokenGenerator.GenerateJWT(
+                personId: user.PersonId.ToString(),
+                role: user.Role,
+                name: user.FirstName + " " + user.LastName,
+                email: user.Email
+            );
 
-            return Ok(new { Token = tokenString });
-
+            // Return token and user info
+            return Ok(new
+            {
+                Token = tokenString,
+                PersonId = user.PersonId,
+                Role = user.Role,
+                Name = user.FirstName + " " + user.LastName,
+                Email = user.Email
+            });
         }
 
-            [HttpGet("GetAllPersons")]
+        [HttpGet("GetAllPersons")]
 
         public IActionResult GetAllPersons()
 
@@ -102,30 +107,29 @@ namespace API.Controllers
             }
 
             return Ok(person);
-
         }
         [AllowAnonymous]
         [HttpPost("RegisterNewPerson")]
-
         public IActionResult AddPerson([FromBody] PersonDto personDto)
-
         {
+            var existingPerson = _personServices.GetPersonByEmail(personDto.Email);
+            if (existingPerson != null)
+            {
+                return BadRequest("Email already exists");
+            }
 
             var addedPerson = _personServices.Add(personDto);
 
-
- return Ok(new
- {
-     personId = addedPerson.PersonId,
-     role = addedPerson.Role
- });
-
-
+            return Ok(new
+            {
+                personId = addedPerson.PersonId,
+                role = addedPerson.Role
+            });
         }
 
         [HttpPut("{id}/UpdatePerson")]
 
-        public IActionResult UpdatePerson(int id, [FromQuery] PersonDto personDto)
+        public IActionResult UpdatePerson(int id, [FromBody] PersonDto personDto)
 
         {
 
@@ -142,6 +146,7 @@ namespace API.Controllers
             return Ok(updatedPerson);
 
         }
+        [Authorize(Roles = "Patient")]
         [HttpGet("GetByRole")]
         public IActionResult GetByRole([FromQuery] string role)
         {
@@ -154,7 +159,7 @@ namespace API.Controllers
             var NoOfPersons = _personServices.GetCount(role);
             return Ok(NoOfPersons);
         }
-       
+
 
 
     }

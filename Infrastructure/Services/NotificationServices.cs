@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Models.Data;
 using Models.Interfaces;
 using Models.Models;
-namespace Infrastructure.Services 
+namespace Infrastructure.Services
 {
     public class NotificationServices : INotificationServices
     {
