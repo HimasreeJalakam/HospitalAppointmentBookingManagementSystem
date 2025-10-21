@@ -36,6 +36,19 @@ namespace Infrastructure.Services
         }
         public Appointment Create(AppointmentDto dto)
         {
+            var conflictingAppointment = _context.Appointments.FirstOrDefault(a =>
+                a.DoctorId == dto.DoctorId &&
+                a.AppointmentDate == dto.AppointmentDate &&
+                a.TimeSlotId == dto.TimeSlotId &&
+                a.Status != "Cancelled" &&
+                a.IsDeleted != "Yes"
+            );
+
+            if (conflictingAppointment != null)
+            {
+                throw new Exception($"Time slot already booked for DoctorId {dto.DoctorId} on {dto.AppointmentDate:yyyy-MM-dd} at TimeSlotId {dto.TimeSlotId}.");
+            }
+
             var newAppointment = new Appointment
             {
                 TimeSlotId = dto.TimeSlotId,
@@ -46,8 +59,32 @@ namespace Infrastructure.Services
                 CreatedAt = DateTime.Now,
                 IsDeleted = "No"
             };
+
             _context.Appointments.Add(newAppointment);
             _context.SaveChanges();
+
+            var doctorNotification = new Notification
+            {
+                AppointmentId = newAppointment.AppointmentId,
+                DoctorId = newAppointment.DoctorId,
+                PatientId = newAppointment.PatientId,
+                Message = "Appointment Created",
+                CreatedAt = DateTime.Now
+            };
+
+            var patientNotification = new Notification
+            {
+                AppointmentId = newAppointment.AppointmentId,
+                DoctorId = newAppointment.DoctorId,
+                PatientId = newAppointment.PatientId,
+                Message = "Appointment Created",
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Notifications.Add(doctorNotification);
+            _context.Notifications.Add(patientNotification);
+            _context.SaveChanges();
+
             return newAppointment;
         }
         public Appointment Update(int appointmentId, AppointmentDto dto)
@@ -57,11 +94,52 @@ namespace Infrastructure.Services
             {
                 throw new Exception($"Appointment with ID {appointmentId} not found.");
             }
+
+
+            var newTimeSlotId = dto.TimeSlotId ?? appointment.TimeSlotId;
+            var newAppointmentDate = dto.AppointmentDate != default ? dto.AppointmentDate : appointment.AppointmentDate;
+            var newDoctorId = dto.DoctorId != 0 ? dto.DoctorId : appointment.DoctorId;
+
+            // Check for booking conflict (excluding current appointment)
+            bool isConflict = _context.Appointments.Any(a =>
+                a.AppointmentId != appointmentId &&
+                a.DoctorId == newDoctorId &&
+                a.AppointmentDate == newAppointmentDate &&
+                a.TimeSlotId == newTimeSlotId &&
+                a.Status != "Cancelled" &&
+                a.IsDeleted != "Yes"
+            );
+
+            if (isConflict)
+                throw new Exception("This time slot is already booked for the selected doctor.");
+
+
             appointment.TimeSlotId = dto.TimeSlotId ?? appointment.TimeSlotId;
             appointment.AppointmentDate = dto.AppointmentDate != default ? dto.AppointmentDate : appointment.AppointmentDate;
             appointment.DoctorId = dto.DoctorId != 0 ? dto.DoctorId : appointment.DoctorId;
             appointment.PatientId = dto.PatientId != 0 ? dto.PatientId : appointment.PatientId;
             appointment.Status = dto.Status ?? appointment.Status;
+            _context.Appointments.Update(appointment);
+            _context.SaveChanges();
+
+            var doctorNotification = new Notification
+            {
+                AppointmentId = appointment.AppointmentId,
+                DoctorId = appointment.DoctorId,
+                PatientId = appointment.PatientId,
+                Message = "Appointment Created",
+                CreatedAt = DateTime.Now
+            };
+            var patientNotification = new Notification
+            {
+                AppointmentId = appointment.AppointmentId,
+                DoctorId = appointment.DoctorId,
+                PatientId = appointment.PatientId,
+                Message = "Appointment Created",
+                CreatedAt = DateTime.Now
+            };
+            _context.Notifications.Add(doctorNotification);
+            _context.Notifications.Add(patientNotification);
             _context.SaveChanges();
             return appointment;
         }

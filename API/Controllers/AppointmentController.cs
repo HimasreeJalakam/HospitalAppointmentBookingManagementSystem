@@ -37,12 +37,11 @@ public class AppointmentController : Controller
     [Route("/api/createAppointments")]
     public IActionResult AddAppointment([FromQuery]AppointmentDto dto)
     {
-        if (dto.TimeSlotId == null || dto.AppointmentDate == null || dto.DoctorId == 0 || dto.PatientId == 0 || dto.Status == null)
-        {
+        if(dto == null) {
             return BadRequest("Invalid input");
         }
-        _appointmentService.Create(dto);
-        return Ok(dto);
+        var appointment = _appointmentService.Create(dto);
+        return Ok(appointment);
     }
 
     [HttpPatch]
