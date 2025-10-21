@@ -2,6 +2,7 @@
 using Infrastructure.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Models.Data;
+using Models.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,19 @@ namespace Infrastructure.Services
             return doctors.FirstOrDefault();
         }
 
+        public Doctor GetDoctorByPersonId(int personId)
+        {
+            var doctors = _context.Doctors.Where(d => d.PersonId == personId)
+                .Include(d => d.Person)
+                .Select(d => new Doctor
+                {
+                    DoctorId = d.DoctorId,
+                    PersonId = d.PersonId,
+                    Speciality = d.Speciality,
+                    YearsOfReg = d.YearsOfReg,
+                }).ToList();
+            return doctors.FirstOrDefault();
+        }
 
     }
 }

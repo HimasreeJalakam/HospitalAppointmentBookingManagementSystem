@@ -7,7 +7,7 @@ using static Models.Data.DB;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 public class TimeSlotController : Controller
 {
 
@@ -35,6 +35,7 @@ public class TimeSlotController : Controller
                 TimeSlotId = row["TimeSlotId"].ToString()!,
                 StartTime = TimeOnly.Parse(row["StartTime"].ToString()!),
                 EndTime = TimeOnly.Parse(row["EndTime"].ToString()!),
+                Timings = Convert.ToInt32(row["Timings"])
             });
         }
 

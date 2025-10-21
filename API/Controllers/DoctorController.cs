@@ -40,5 +40,15 @@ namespace API.Controllers
             var doctor = _doctorServices.getBySpeciality(speciality);
             return Ok(doctor);
         }
+        [HttpGet("GetDoctorByPersonId")]
+        public IActionResult GetDoctorByPersonId([FromQuery] int personId)
+        {
+            var doctor = _doctorServices.GetDoctorByPersonId(personId);
+
+            if (doctor == null)
+                return NotFound();
+
+            return Ok(doctor);
+        }
     }
 }

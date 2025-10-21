@@ -8,68 +8,50 @@ using Models.Data;
 using Models.Helper;
 using Models.Models;
 
-namespace FileUpload.Controllers
+namespace FileUpload.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+//[Authorize]
+public class MedicalController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [Authorize]
-    public class MedicalController : ControllerBase
+    private readonly IMedicalHistoryService _history;
+
+    public MedicalController(IMedicalHistoryService history)
     {
-        private readonly string _uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
-        private readonly AppDbContext _context;
-        private readonly IMedicalHistoryService _history;
-        public MedicalController(AppDbContext context,IMedicalHistoryService history)
+        _history = history;
+    }
+
+    [HttpPost("AddMedicalHistory")]
+    public async Task<IActionResult> UploadFile([FromQuery] MedicalHistoryDto dto, IFormFile file)
+    {
+        try
         {
-            _context = context;
-            _history = history;
-            if (!Directory.Exists(_uploadPath))
-                Directory.CreateDirectory(_uploadPath);
+            var dtoEntity = await _history.AddMedicalHistoryAsync(dto, file);
+            return Ok(new { dtoEntity });
         }
-
-        [HttpPost("AddMedicalHistory")]
-        public async Task<IActionResult> UploadFile([FromQuery]MedicalHistoryDto dto,IFormFile file)
+        catch (Exception ex)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded.");
-
-            string filePath = Path.Combine(_uploadPath, file.FileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }            
-
-            MedicalHistory dtoEntity = new MedicalHistory
-            {
-                PatientId = dto.PatientId,
-                Dtype = dto.Dtype,
-                Tid = dto.Tid,
-                Records =filePath,
-                CreatedAt = DateTime.Now
-            };
-
-            _context.MedicalHistories.Add(dtoEntity);
-            _context.SaveChanges();
-
-            return Ok(new {dtoEntity} );
+            return BadRequest(ex.Message);
         }
+    }
 
-
-        [HttpGet("DisplayMedicalHistory")]
-        public IActionResult DisplayFile([FromQuery]int HistoryId)
+    [HttpGet("DisplayMedicalHistory")]
+    public IActionResult DisplayFile([FromQuery] int HistoryId)
+    {
+        try
         {
-            var medicalHistory = _context.MedicalHistories.Find(HistoryId);
-            string fileName = _history.getMedicalRecord(HistoryId);
-            var filePath = Path.Combine(_uploadPath, fileName);
+            var medicalHistory = _history.GetMedicalHistory(HistoryId);
+            if (medicalHistory == null)
+                return NotFound("Medical history not found.");
 
-            if (!System.IO.File.Exists(filePath))
-                return NotFound("File not found.");
-
-            var fileBytes = System.IO.File.ReadAllBytes(filePath);
-            var contentType = "application/octet-stream"; 
-
-            var records = File(fileBytes, contentType, fileName);
-            return Ok(new { medicalHistory } );
+            var fileBytes = _history.GetMedicalFileBytes(HistoryId, out string fileName, out string contentType);
+            return File(fileBytes, contentType, fileName);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
         }
     }
 }
+
