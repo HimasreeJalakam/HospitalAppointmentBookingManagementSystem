@@ -12,6 +12,7 @@ namespace Infrastructure.Services
         {
             _context = context;
         }
+
         public List<Appointment> GetAll()
         {
             return _context.Appointments.ToList();
@@ -76,7 +77,10 @@ namespace Infrastructure.Services
             _context.SaveChanges();
             return appointment;
         }
-
+        public int GetCountAppointment()
+        {
+            return _context.Appointments.Count();
+        }
         public Appointment FinishedAppointment(int appointmentId)
         {
             var appointment = _context.Appointments.Find(appointmentId);

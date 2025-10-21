@@ -45,10 +45,11 @@ namespace API.Controllers
             _configuration = configuration;
 
         }
+        [AllowAnonymous]
 
         [HttpPost("login")]
 
-        public IActionResult Login([FromQuery] LoginDto loginRequest)
+        public IActionResult Login([FromBody] LoginDto loginRequest)
 
         {
 
@@ -72,7 +73,7 @@ namespace API.Controllers
 
         }
 
-        [HttpGet("GetAllPersons")]
+            [HttpGet("GetAllPersons")]
 
         public IActionResult GetAllPersons()
 

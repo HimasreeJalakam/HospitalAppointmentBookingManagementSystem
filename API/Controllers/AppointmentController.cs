@@ -1,4 +1,5 @@
-﻿using Infrastructure.Services;
+﻿using Infrastructure.Interfaces;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Data;
@@ -57,5 +58,11 @@ public class AppointmentController : Controller
         _appointmentService.Update(AppointmentId,dto);
         return Ok("Appointment Id : "+AppointmentId +" has been updated.");
 
+    }
+    [HttpGet("Count")]
+    public IActionResult GetCountAppointment()
+    {
+        var NoOfAppointments = _appointmentService.GetCountAppointment();
+        return Ok(NoOfAppointments);
     }
 }

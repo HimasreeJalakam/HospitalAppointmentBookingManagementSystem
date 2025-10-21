@@ -15,7 +15,7 @@ namespace Infrastructure.Services
             AppDbContext context,
             EmailService emailService,
             IPersonService personServices,
-            IAppointmentServices appointmentService,
+            IAppointmentServices appointmentService
             )
         {
             _context = context;
