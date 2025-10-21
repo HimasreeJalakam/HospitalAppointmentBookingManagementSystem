@@ -12,12 +12,10 @@ namespace Infrastructure.Services
         {
             _context = context;
         }
-        public bool ValidateUser(string username, string password)
+        public Person ValidateUser(string username, string password)
         {
-            var user = _context.People
+            return _context.People
                 .FirstOrDefault(u => u.Email == username && u.Password == password);
-
-            return user != null;
         }
         public List<PersonDisplayDto> GetAllPersons()
         {
@@ -54,7 +52,8 @@ namespace Infrastructure.Services
                     Address = person.Address,
                     PhoneNo = (long)person.PhoneNo,
                     AltNo = (long)person.AltNo,
-                    Role = person.Role
+                    Role = person.Role,
+                    Password = person.Password
 
                 };
             }
@@ -62,6 +61,12 @@ namespace Infrastructure.Services
         }
         public PersonDto Add(PersonDto personDto)
         {
+            var existingPerson = _context.People.FirstOrDefault(p => p.Email == personDto.Email);
+            if (existingPerson != null)
+            {
+                return null; // Email already exists
+            }
+
             var person = new Person
             {
                 FirstName = personDto.FirstName,
@@ -74,15 +79,15 @@ namespace Infrastructure.Services
                 Email = personDto.Email,
                 Role = personDto.Role,
                 Password = personDto.Password,
-
                 CreatedAt = DateTime.Now
             };
+
             _context.People.Add(person);
-
             _context.SaveChanges();
-            var added = new PersonDto
 
-            {   PersonId=person.PersonId,
+            return new PersonDto
+            {
+                PersonId = person.PersonId,
                 FirstName = person.FirstName,
                 LastName = person.LastName,
                 Dob = (DateOnly)person.Dob,
@@ -94,7 +99,20 @@ namespace Infrastructure.Services
                 Role = person.Role,
                 Password = person.Password
             };
-            return added;
+        }
+        public PersonDto GetPersonByEmail(string email)
+        {
+            var person = _context.People.FirstOrDefault(p => p.Email == email);
+            if (person == null) return null;
+
+            return new PersonDto
+            {
+                PersonId = person.PersonId,
+                FirstName = person.FirstName,
+                Email = person.Email,
+                Role = person.Role
+                // Add other fields if needed
+            };
         }
         public PersonDto Update(int id, PersonDto personDto)
         {
@@ -162,19 +180,19 @@ namespace Infrastructure.Services
                                .Include(p => p.MedicalHistories)
                                .Where(p => p.Role != null && p.Role.Trim().ToLower() == "patient")
                                .Select(p => new PatientDto
-                                            {
-                                PersonId = p.PersonId,
-                                FirstName = p.FirstName,
-                                LastName = p.LastName,
-                                Dob = p.Dob.HasValue ? p.Dob.Value : default,
-                                PhoneNo = p.PhoneNo.HasValue ? p.PhoneNo.Value : 0,
-                                Address = p.Address,
-                                AltNo = p.AltNo.HasValue ? p.AltNo.Value : 0,
-                                Email = p.Email,
-                                Gender = p.Gender,
-                                Dtype = p.MedicalHistories.Select(m => m.Dtype).FirstOrDefault(),
-                                Records = p.MedicalHistories.Select(m => m.Records).FirstOrDefault()
-                            })
+                               {
+                                   PersonId = p.PersonId,
+                                   FirstName = p.FirstName,
+                                   LastName = p.LastName,
+                                   Dob = p.Dob.HasValue ? p.Dob.Value : default,
+                                   PhoneNo = p.PhoneNo.HasValue ? p.PhoneNo.Value : 0,
+                                   Address = p.Address,
+                                   AltNo = p.AltNo.HasValue ? p.AltNo.Value : 0,
+                                   Email = p.Email,
+                                   Gender = p.Gender,
+                                   Dtype = p.MedicalHistories.Select(m => m.Dtype).FirstOrDefault(),
+                                   Records = p.MedicalHistories.Select(m => m.Records).FirstOrDefault()
+                               })
                             .ToList();
                 return patients;
             }
@@ -201,7 +219,7 @@ namespace Infrastructure.Services
         }
         public int GetCount(string role)
         {
-            return _context.People.Count(p => p.Role.ToLower() == role.ToLower()); 
-        }       
+            return _context.People.Count(p => p.Role.ToLower() == role.ToLower());
+        }
     }
 }

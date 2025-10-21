@@ -13,32 +13,35 @@ namespace Infrastructure.Services
         {
             _configuration = configuration;
         }
-
-        public string GenerateJWT(string userId, string role, string department, string accessLevel)
+        public string GenerateJWT(string personId, string role, string name, string email)
         {
+            var key = _configuration.GetValue<string>("Jwt:Key");
 
-            var key = _configuration.GetValue<string>("ApiSettings:Secret");
+            if (string.IsNullOrEmpty(key) || key.Length < 32)
+                throw new Exception("JWT Key must be at least 32 characters long.");
+
             var securedKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var securityCredentials = new SigningCredentials(securedKey, SecurityAlgorithms.HmacSha256);
-           
-            var claims = new List<Claim>()
-            {
-                new Claim(JwtRegisteredClaimNames.Sub,userId),
-                new Claim(ClaimTypes.Role,role),
-                new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()) //Unique Id
-              
-            };
-        
-            var token = new JwtSecurityToken(
 
-                  issuer: "HospitalManagement",
-                  audience: "HospitalUsers",
-                  claims: claims,
-                  expires: DateTime.Now.AddHours(1),
-                  signingCredentials: securityCredentials
-                );
-            var tokenS = new JwtSecurityTokenHandler();
-            return tokenS.WriteToken(token);
+            var claims = new[]
+            {
+        new Claim(JwtRegisteredClaimNames.Sub, personId),
+        new Claim("role", role),
+        new Claim("name", name),
+        new Claim("email", email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: securityCredentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }
