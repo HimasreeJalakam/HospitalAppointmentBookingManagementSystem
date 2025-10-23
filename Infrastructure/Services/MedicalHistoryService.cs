@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Infrastructure.Services
 {
@@ -31,26 +32,48 @@ namespace Infrastructure.Services
             if (file == null || file.Length == 0)
                 throw new ArgumentException("No file uploaded.");
 
-            string filePath = Path.Combine(_uploadPath, file.FileName);
+            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+
+            var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "medicalrecords");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            var filePath = Path.Combine(folderPath, fileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                file.CopyTo(stream);
             }
 
-            var dtoEntity = new MedicalHistory
+            // Save relative path to DB
+            var relativePath = Path.Combine("medicalrecords", fileName).Replace("\\", "/");
+
+            var records = new MedicalHistory
             {
                 PatientId = dto.PatientId,
-                Dtype = dto.Dtype,
-                Tid = dto.Tid,
-                Records = filePath,
-                CreatedAt = DateTime.Now
+                Dtype=dto.Dtype,
+                Tid= (int)dto.Tid,
+                Records=relativePath,
+                CreatedAt=dto.createdAt,
+
             };
 
-            _context.MedicalHistories.Add(dtoEntity);
-            await _context.SaveChangesAsync();
+            _context.MedicalHistories.Add(records);
+            _context.SaveChanges();
 
-            return dtoEntity;
+            return new MedicalHistory
+            {
+                HistoryId=records.HistoryId,
+                PatientId= records.PatientId,
+                Dtype=records.Dtype,
+                Records=relativePath,
+                CreatedAt=records.CreatedAt,
+                Tid = (int)records.Tid,
+
+            };
         }
 
         public MedicalHistory GetMedicalHistory(int PatientId)
