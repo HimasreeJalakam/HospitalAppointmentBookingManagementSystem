@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Infrastructure.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Models.Data;
 using Models.DTOs;
 using Models.Interfaces;
@@ -9,33 +10,40 @@ namespace Infrastructure.Services
     public class AppointmentService : IAppointmentServices
     {
         private readonly AppDbContext _context;
-        public AppointmentService(AppDbContext context)
+        private readonly INotificationServices _notificationService;
+
+        public AppointmentService(AppDbContext context, INotificationServices notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public List<Appointment> GetAll()
         {
             return _context.Appointments.ToList();
         }
+
         public List<Appointment> GetByPersonId(int personId)
         {
             return _context.Appointments
                 .Where(a => a.PatientId == personId || a.DoctorId == personId)
                 .ToList();
         }
+
         public List<Appointment> GetAppointmentsByDate(DateOnly date)
         {
             return _context.Appointments
                 .Where(a => a.AppointmentDate == date)
                 .ToList();
         }
+
         public List<Appointment> GetAppointmentsByStatus(string status)
         {
             return _context.Appointments
                 .Where(a => a.Status.Equals(status, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
+
         public Appointment Create(AppointmentDto dto)
         {
             var conflictingAppointment = _context.Appointments.FirstOrDefault(a =>
@@ -65,30 +73,19 @@ namespace Infrastructure.Services
             _context.Appointments.Add(newAppointment);
             _context.SaveChanges();
 
-            var doctorNotification = new Notification
+            var notification = new Notification
             {
                 AppointmentId = newAppointment.AppointmentId,
                 DoctorId = newAppointment.DoctorId,
                 PatientId = newAppointment.PatientId,
-                Message = "Appointment Created",
+                Message = $"Your Appointment is Scheduled \nDetails :\n\nAppointment ID : {newAppointment.AppointmentId}\nPatientID : {newAppointment.PatientId}\nDoctorID : {newAppointment.DoctorId}\nAppointment Date : {dto.AppointmentDate}",
                 CreatedAt = DateTime.Now
-            };
+            };  
 
-            var patientNotification = new Notification
-            {
-                AppointmentId = newAppointment.AppointmentId,
-                DoctorId = newAppointment.DoctorId,
-                PatientId = newAppointment.PatientId,
-                Message = "Appointment Created",
-                CreatedAt = DateTime.Now
-            };
-
-            _context.Notifications.Add(doctorNotification);
-            _context.Notifications.Add(patientNotification);
-            _context.SaveChanges();
-
+            _notificationService.Create(notification);
             return newAppointment;
         }
+
         public Appointment Update(int appointmentId, AppointmentDto dto)
         {
             var appointment = _context.Appointments.Find(appointmentId);
@@ -97,12 +94,10 @@ namespace Infrastructure.Services
                 throw new Exception($"Appointment with ID {appointmentId} not found.");
             }
 
-
             var newTimeSlotId = dto.TimeSlotId ?? appointment.TimeSlotId;
             var newAppointmentDate = dto.AppointmentDate != default ? dto.AppointmentDate : appointment.AppointmentDate;
             var newDoctorId = dto.DoctorId != 0 ? dto.DoctorId : appointment.DoctorId;
 
-            // Check for booking conflict (excluding current appointment)
             bool isConflict = _context.Appointments.Any(a =>
                 a.AppointmentId != appointmentId &&
                 a.DoctorId == newDoctorId &&
@@ -115,36 +110,28 @@ namespace Infrastructure.Services
             if (isConflict)
                 throw new Exception("This time slot is already booked for the selected doctor.");
 
-
-            appointment.TimeSlotId = dto.TimeSlotId ?? appointment.TimeSlotId;
-            appointment.AppointmentDate = dto.AppointmentDate != default ? dto.AppointmentDate : appointment.AppointmentDate;
-            appointment.DoctorId = dto.DoctorId != 0 ? dto.DoctorId : appointment.DoctorId;
+            appointment.TimeSlotId = newTimeSlotId;
+            appointment.AppointmentDate = newAppointmentDate;
+            appointment.DoctorId = newDoctorId;
             appointment.PatientId = dto.PatientId != 0 ? dto.PatientId : appointment.PatientId;
             appointment.Status = dto.Status ?? appointment.Status;
+
             _context.Appointments.Update(appointment);
             _context.SaveChanges();
 
-            var doctorNotification = new Notification
+            var notification = new Notification
             {
                 AppointmentId = appointment.AppointmentId,
                 DoctorId = appointment.DoctorId,
                 PatientId = appointment.PatientId,
-                Message = "Appointment Created",
+                Message = "Appointment Updated",
                 CreatedAt = DateTime.Now
             };
-            var patientNotification = new Notification
-            {
-                AppointmentId = appointment.AppointmentId,
-                DoctorId = appointment.DoctorId,
-                PatientId = appointment.PatientId,
-                Message = "Appointment Created",
-                CreatedAt = DateTime.Now
-            };
-            _context.Notifications.Add(doctorNotification);
-            _context.Notifications.Add(patientNotification);
-            _context.SaveChanges();
+
+            _notificationService.Create(notification);
             return appointment;
         }
+
         public Appointment CancelledAppointment(int appointmentId)
         {
             var appointment = _context.Appointments.Find(appointmentId);
@@ -152,32 +139,28 @@ namespace Infrastructure.Services
             {
                 throw new Exception($"Appointment with ID {appointmentId} not found.");
             }
+
             appointment.Status = "Cancelled";
-            var doctorNotification = new Notification
-            {
-                AppointmentId = appointment.AppointmentId,
-                DoctorId = appointment.DoctorId,
-                PatientId = appointment.PatientId,
-                Message = "Appointment Created",
-                CreatedAt = DateTime.Now
-            };
-            var patientNotification = new Notification
-            {
-                AppointmentId = appointment.AppointmentId,
-                DoctorId = appointment.DoctorId,
-                PatientId = appointment.PatientId,
-                Message = "Appointment Created",
-                CreatedAt = DateTime.Now
-            };
-            _context.Notifications.Add(doctorNotification);
-            _context.Notifications.Add(patientNotification);
             _context.SaveChanges();
+
+            var notification = new Notification
+            {
+                AppointmentId = appointment.AppointmentId,
+                DoctorId = appointment.DoctorId,
+                PatientId = appointment.PatientId,
+                Message = $"Your Appointment is Cancelled \nDetails :\n\nAppointment ID : {appointment.AppointmentId}\nPatientID : {appointment.PatientId}\nDoctorID : {appointment.DoctorId}",
+                CreatedAt = DateTime.Now
+            };
+
+            _notificationService.Create(notification);
             return appointment;
         }
+
         public int GetCountAppointment()
         {
             return _context.Appointments.Count();
         }
+
         public Appointment FinishedAppointment(int appointmentId)
         {
             var appointment = _context.Appointments.Find(appointmentId);
@@ -185,27 +168,31 @@ namespace Infrastructure.Services
             {
                 throw new Exception($"Appointment with ID {appointmentId} not found.");
             }
+
             appointment.Status = "Finished";
             _context.SaveChanges();
             return appointment;
         }
+
         public List<object> GetAppointmentsByDoctorId(int doctorId)
         {
             var appointments = _context.Appointments
-            .Where(a => a.DoctorId == doctorId)
-            .Include(a => a.Patient)
-            .Select(a => new
-            {
-                a.AppointmentId,
-                a.AppointmentDate,
-                a.TimeSlotId,
-                a.Status,
-                a.Patient.FirstName,
-                a.Patient.LastName
-            })
-            .ToList<object>();
+                .Where(a => a.DoctorId == doctorId)
+                .Include(a => a.Patient)
+                .Select(a => new
+                {
+                    a.AppointmentId,
+                    a.AppointmentDate,
+                    a.TimeSlotId,
+                    a.Status,
+                    a.Patient.FirstName,
+                    a.Patient.LastName
+                })
+                .ToList<object>();
+
             return appointments;
         }
+
         public void SoftDelete(int appointmentId)
         {
             var appointment = _context.Appointments.Find(appointmentId);
@@ -213,6 +200,7 @@ namespace Infrastructure.Services
             {
                 throw new Exception($"Appointment with ID {appointmentId} not found.");
             }
+
             appointment.IsDeleted = "Yes";
             _context.SaveChanges();
         }
