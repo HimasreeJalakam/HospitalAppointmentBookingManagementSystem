@@ -9,7 +9,7 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class DoctorController : ControllerBase
     {
         private readonly IDoctorServices _doctorServices;
@@ -31,13 +31,13 @@ namespace API.Controllers
             }
         }
         [HttpPut("{personId}/updateSpeciality")]
-        public IActionResult UpdateSpeciality(int personId, [FromQuery] SpecialityDto dto)
+        public IActionResult UpdateSpeciality(int personId, [FromBody] SpecialityDto dto)
         {
             var speciality = _doctorServices.UpdatingSpeciality(personId, dto);
             return Ok(speciality);
         }
         [HttpGet("GetBySpeciality")]
-        public IActionResult GetBySpeciality([FromQuery] string speciality)
+        public IActionResult GetBySpeciality([FromBody] string speciality)
         {
             var doctor = _doctorServices.getBySpeciality(speciality);
             return Ok(doctor);

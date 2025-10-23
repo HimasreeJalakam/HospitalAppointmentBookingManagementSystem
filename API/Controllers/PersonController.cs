@@ -146,7 +146,6 @@ namespace API.Controllers
             return Ok(updatedPerson);
 
         }
-        [Authorize(Roles = "Patient")]
         [HttpGet("GetByRole")]
         public IActionResult GetByRole([FromQuery] string role)
         {

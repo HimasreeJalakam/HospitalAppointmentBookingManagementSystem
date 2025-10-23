@@ -23,19 +23,19 @@ public class MedicalController : ControllerBase
     }
 
     [HttpPost("AddMedicalHistory")]
-    public async Task<IActionResult> UploadFile([FromQuery] MedicalHistoryDto dto, IFormFile file)
+    public async Task<IActionResult> AddMedicalHistory([FromForm] MedicalHistoryDto request)
     {
-        try
+        var dto = new MedicalHistoryDto
         {
-            var dtoEntity = await _history.AddMedicalHistoryAsync(dto, file);
-            return Ok(new { dtoEntity });
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
+            PatientId = request.PatientId,
+            Dtype = request.Dtype,
+            Tid = request.Tid,
+            createdAt = request.createdAt
+        };
 
+        var result = await _history.AddMedicalHistoryAsync(dto, request.File);
+        return Ok(result);
+    }
     [HttpGet("DisplayMedicalHistory")]
     public IActionResult DisplayFile([FromQuery] int HistoryId)
     {

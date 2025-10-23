@@ -26,8 +26,8 @@ public class AppointmentController : Controller
         return Ok(appointments);
     }
 
-    [HttpGet]
-    [Route("/api/getAppointmentsByPersonId/{PersonId}")]
+    [HttpGet("getAppointmentsByPersonId/{PersonId}")]
+    //[Route("/api/getAppointmentsByPersonId/{PersonId}")]
     public IActionResult GetAppointmentsByPersonId(int PersonId)
     {
         var appointments = _appointmentService.GetByPersonId(PersonId);
@@ -57,6 +57,23 @@ public class AppointmentController : Controller
         _appointmentService.Update(AppointmentId,dto);
         return Ok("Appointment Id : "+AppointmentId +" has been updated.");
 
+    }
+    [HttpPut("cancelAppointment/{appointmentId}")]
+    public IActionResult CancelAppointment(int appointmentId)
+    {
+        try
+        {
+            var updatedAppointment = _appointmentService.CancelledAppointment(appointmentId);
+            return Ok(new
+            {
+                message = "Appointment cancelled successfully",
+                appointment = updatedAppointment
+            });
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
     [HttpGet("Count")]
     public IActionResult GetCountAppointment()
