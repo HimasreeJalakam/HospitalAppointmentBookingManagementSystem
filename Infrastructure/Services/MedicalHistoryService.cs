@@ -76,14 +76,14 @@ namespace Infrastructure.Services
             };
         }
 
-        public MedicalHistory GetMedicalHistory(int historyId)
+        public MedicalHistory GetMedicalHistory(int PatientId)
         {
-            return _context.MedicalHistories.FirstOrDefault(h => h.HistoryId == historyId);
+            return _context.MedicalHistories.FirstOrDefault(h => h.PatientId == PatientId);
         }
 
-        public byte[] GetMedicalFileBytes(int historyId, out string fileName, out string contentType)
+        public byte[] GetMedicalFileBytes(int PatientId, out string fileName, out string contentType)
         {
-            var history = GetMedicalHistory(historyId);
+            var history = GetMedicalHistory(PatientId);
 
             if (history == null || string.IsNullOrEmpty(history.Records))
                 throw new FileNotFoundException("Medical record not found.");

@@ -26,8 +26,6 @@ namespace API.Controllers
 
     [ApiController]
 
-    //[Authorize]
-
     public class PersonController : ControllerBase
 
     {

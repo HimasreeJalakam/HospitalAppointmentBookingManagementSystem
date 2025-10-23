@@ -12,7 +12,6 @@ namespace FileUpload.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
 public class MedicalController : ControllerBase
 {
     private readonly IMedicalHistoryService _history;
@@ -37,15 +36,15 @@ public class MedicalController : ControllerBase
         return Ok(result);
     }
     [HttpGet("DisplayMedicalHistory")]
-    public IActionResult DisplayFile([FromQuery] int HistoryId)
+    public IActionResult DisplayFile([FromQuery] int PatientId)
     {
         try
         {
-            var medicalHistory = _history.GetMedicalHistory(HistoryId);
+            var medicalHistory = _history.GetMedicalHistory(PatientId);
             if (medicalHistory == null)
                 return NotFound("Medical history not found.");
 
-            var fileBytes = _history.GetMedicalFileBytes(HistoryId, out string fileName, out string contentType);
+            var fileBytes = _history.GetMedicalFileBytes(PatientId, out string fileName, out string contentType);
             return File(fileBytes, contentType, fileName);
         }
         catch (Exception ex)

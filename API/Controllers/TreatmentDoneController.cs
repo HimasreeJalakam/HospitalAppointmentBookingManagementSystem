@@ -8,7 +8,6 @@ using Models.Models;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
 
 public class TreatmentDoneController : Controller
 {
@@ -46,7 +45,7 @@ public class TreatmentDoneController : Controller
                 Dtype = dto.Dtype,
                 Description = dto.Description,
                 Prescription = dto.Prescription,
-                FollowUp = DateTime.Now,
+                FollowUp = dto.FollowUp,
                 CreatedAt = DateTime.Now
             };
 

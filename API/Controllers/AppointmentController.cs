@@ -2,6 +2,7 @@
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Models.Data;
 using Models.DTOs;
 using Models.Interfaces;
@@ -10,13 +11,14 @@ using Models.Models;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
 public class AppointmentController : Controller
 {
     private readonly IAppointmentServices _appointmentService;
-    public AppointmentController(IAppointmentServices appointmentService)
-    {        
+    private readonly AppDbContext _context;
+    public AppointmentController(IAppointmentServices appointmentService,AppDbContext context)
+    {
         _appointmentService = appointmentService;
+        _context = context;
     }
     [HttpGet]
     [Route("/api/getAppointments")]
@@ -36,9 +38,9 @@ public class AppointmentController : Controller
 
     [HttpPost]
     [Route("/api/createAppointments")]
-    public IActionResult AddAppointment([FromQuery]AppointmentDto dto)
+    public IActionResult AddAppointment([FromQuery] AppointmentDto dto)
     {
-        if(dto == null) {
+        if (dto == null) {
             return BadRequest("Invalid input");
         }
         var appointment = _appointmentService.Create(dto);
@@ -47,15 +49,27 @@ public class AppointmentController : Controller
 
     [HttpPatch]
     [Route("/api/updateAppointment")]
-    public IActionResult UpdateAppointment([FromQuery]int AppointmentId,[FromQuery]AppointmentDto dto)
+    public IActionResult UpdateAppointment([FromQuery] int AppointmentId, [FromQuery] AppointmentDto dto)
     {
         if (AppointmentId == null)
         {
             return NotFound("Enter AppointmentId To Be Update");
         }
 
-        _appointmentService.Update(AppointmentId,dto);
-        return Ok("Appointment Id : "+AppointmentId +" has been updated.");
+        _appointmentService.Update(AppointmentId, dto);
+        return Ok("Appointment Id : " + AppointmentId + " has been updated.");
+
+    }
+
+    [HttpPut("cancelledAppointment/{appointmentId}")]
+    public IActionResult CancelledAppointment(int appointmentId)
+    {
+        if (appointmentId == 0)
+        {
+            return BadRequest("Invalid AppointmentId");
+        }
+        _appointmentService.CancelledAppointment(appointmentId);
+        return Ok("Appointment Id : " + appointmentId + " has been cancelled.");
 
     }
     [HttpPut("cancelAppointment/{appointmentId}")]
@@ -80,5 +94,13 @@ public class AppointmentController : Controller
     {
         var NoOfAppointments = _appointmentService.GetCountAppointment();
         return Ok(NoOfAppointments);
+    }
+
+    [HttpGet]
+    [Route("/api/GetAppointmentsByDoctorId")]    
+    public IActionResult GetAppointmentsByDoctorId(int doctorId)
+    {
+        var appointments = _appointmentService.GetAppointmentsByDoctorId(doctorId);
+        return Ok(appointments);
     }
 }
