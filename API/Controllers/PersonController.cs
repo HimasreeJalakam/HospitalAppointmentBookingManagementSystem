@@ -26,8 +26,6 @@ namespace API.Controllers
 
     [ApiController]
 
-    //[Authorize]
-
     public class PersonController : ControllerBase
 
     {
@@ -146,7 +144,7 @@ namespace API.Controllers
             return Ok(updatedPerson);
 
         }
-        [Authorize(Roles = "Patient")]
+        //[Authorize(Roles = "Patient")]
         [HttpGet("GetByRole")]
         public IActionResult GetByRole([FromQuery] string role)
         {

@@ -7,5 +7,6 @@
         public string Dtype { get; set; }
         public string Description { get; set; }
         public string Prescription { get; set; }
+        public DateTime FollowUp { get; set; }
     }
 }

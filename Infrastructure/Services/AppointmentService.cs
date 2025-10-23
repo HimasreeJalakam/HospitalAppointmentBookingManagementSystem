@@ -1,4 +1,5 @@
-﻿using Models.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Models.Data;
 using Models.DTOs;
 using Models.Interfaces;
 using Models.Models;
@@ -152,6 +153,24 @@ namespace Infrastructure.Services
                 throw new Exception($"Appointment with ID {appointmentId} not found.");
             }
             appointment.Status = "Cancelled";
+            var doctorNotification = new Notification
+            {
+                AppointmentId = appointment.AppointmentId,
+                DoctorId = appointment.DoctorId,
+                PatientId = appointment.PatientId,
+                Message = "Appointment Created",
+                CreatedAt = DateTime.Now
+            };
+            var patientNotification = new Notification
+            {
+                AppointmentId = appointment.AppointmentId,
+                DoctorId = appointment.DoctorId,
+                PatientId = appointment.PatientId,
+                Message = "Appointment Created",
+                CreatedAt = DateTime.Now
+            };
+            _context.Notifications.Add(doctorNotification);
+            _context.Notifications.Add(patientNotification);
             _context.SaveChanges();
             return appointment;
         }
@@ -169,6 +188,23 @@ namespace Infrastructure.Services
             appointment.Status = "Finished";
             _context.SaveChanges();
             return appointment;
+        }
+        public List<object> GetAppointmentsByDoctorId(int doctorId)
+        {
+            var appointments = _context.Appointments
+            .Where(a => a.DoctorId == doctorId)
+            .Include(a => a.Patient)
+            .Select(a => new
+            {
+                a.AppointmentId,
+                a.AppointmentDate,
+                a.TimeSlotId,
+                a.Status,
+                a.Patient.FirstName,
+                a.Patient.LastName
+            })
+            .ToList<object>();
+            return appointments;
         }
         public void SoftDelete(int appointmentId)
         {

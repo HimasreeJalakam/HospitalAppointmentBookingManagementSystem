@@ -7,7 +7,6 @@ using static Models.Data.DB;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
 public class TimeSlotController : Controller
 {
 

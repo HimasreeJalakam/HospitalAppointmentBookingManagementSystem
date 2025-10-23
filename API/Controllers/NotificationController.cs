@@ -12,7 +12,6 @@ using Models.Models;
 namespace API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
 public class NotificationController : Controller
 {
     private readonly INotificationServices _notificationservice;

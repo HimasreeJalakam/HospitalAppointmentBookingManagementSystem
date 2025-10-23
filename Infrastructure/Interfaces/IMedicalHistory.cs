@@ -7,7 +7,7 @@ public interface IMedicalHistoryService
 {
 
     Task<MedicalHistory> AddMedicalHistoryAsync(MedicalHistoryDto dto, IFormFile file);
-    MedicalHistory GetMedicalHistory(int historyId);
-    byte[] GetMedicalFileBytes(int historyId, out string fileName, out string contentType);
+    MedicalHistory GetMedicalHistory(int PatientId);
+    byte[] GetMedicalFileBytes(int PatientId, out string fileName, out string contentType);
 
 }
