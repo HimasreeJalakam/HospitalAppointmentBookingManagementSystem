@@ -5,7 +5,7 @@ namespace Infrastructure.Interfaces
     public interface ITreatmentDoneServices
     {
         public List<TreatmentDone> GetAll();
-        public TreatmentDone GetById(int id);
+        public List<TreatmentDone> GetByPatientId(int patientId);
         public TreatmentDone Create(TreatmentDone treatment);
     }
 }
