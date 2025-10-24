@@ -25,11 +25,12 @@ public class TreatmentDoneController : Controller
         return Ok(_treatmentDoneServices.GetAll());
     }
 
-    [HttpGet]
-    [Route("/api/getTreatmentDoneById/{personid}")]
-    public ActionResult<TreatmentDone> GetTreatmentDoneByPersonId(int personid)
+    [HttpGet("getTreatmentByPatientId/{patientId}")]
+    public IActionResult GetTreatmentByPatientId(int patientId)
     {
-        return Ok(_treatmentDoneServices.GetById(personid));
+        var treatments = _treatmentDoneServices.GetByPatientId(patientId);
+
+        return Ok(treatments);
     }
 
     [HttpPost]
@@ -54,7 +55,7 @@ public class TreatmentDoneController : Controller
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(ex.Message); 
+            return BadRequest(ex.Message);
         }
     }
 

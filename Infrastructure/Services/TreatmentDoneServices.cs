@@ -22,9 +22,11 @@ namespace Infrastructure.Services
         {
             return _context.TreatmentDones.ToList();
         }
-        public TreatmentDone? GetById(int personid)
+        public List<TreatmentDone> GetByPatientId(int patientId)
         {
-            return _context.TreatmentDones.Find(personid);
+            return _context.TreatmentDones
+                           .Where(t => t.PatientId == patientId)
+                           .ToList();
         }
         public TreatmentDone Create(TreatmentDone treatmentDone)
         {
