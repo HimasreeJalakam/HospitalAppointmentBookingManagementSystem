@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
-using Models.Helper;
 
 namespace Infrastructure.Services
 {
@@ -31,7 +30,6 @@ namespace Infrastructure.Services
         public TreatmentDone Create(TreatmentDone treatmentDone)
         {
 
-            Dtype.Validate(treatmentDone.Dtype);
             _context.TreatmentDones.Add(treatmentDone);
             _context.SaveChanges();
             return treatmentDone;

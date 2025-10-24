@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Data;
-using Models.Helper;
 using Models.Models;
 
 namespace FileUpload.Controllers;

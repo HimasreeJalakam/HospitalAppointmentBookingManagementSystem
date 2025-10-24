@@ -30,7 +30,7 @@ namespace Infrastructure.Services
         public void SendEmail(string toEmail, string subject, string body)
         {
             var message = new MailMessage(_settings.FromEmail, toEmail, subject, body);
-            CreateSmtpClient().Send(message);
+            //CreateSmtpClient().Send(message);
         }
 
     }

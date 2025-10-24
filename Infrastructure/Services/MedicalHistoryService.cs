@@ -50,7 +50,7 @@ namespace Infrastructure.Services
 
             // Save relative path to DB
             var relativePath = Path.Combine("medicalrecords", fileName).Replace("\\", "/");
-
+         
             var records = new MedicalHistory
             {
                 PatientId = dto.PatientId,
@@ -91,10 +91,11 @@ namespace Infrastructure.Services
             fileName = Path.GetFileName(history.Records);
             contentType = "application/octet-stream";
 
-            var filePath = Path.Combine(_uploadPath, fileName);
+            // FIX: Use the correct folder where files are saved
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "medicalrecords", fileName);
 
             if (!File.Exists(filePath))
-                throw new FileNotFoundException("File not found on disk.");
+                throw new FileNotFoundException($"File not found on disk at {filePath}");
 
             return File.ReadAllBytes(filePath);
         }
