@@ -1,3 +1,4 @@
+using API.MiddleWare;
 using FileUpload.Controllers;
 using Infrastructure.Interfaces;
 using Infrastructure.Services;
@@ -13,7 +14,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 
 builder.Services.AddCors(options =>
 {
@@ -119,6 +120,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseCors("AllowAngularApp");
 app.MapControllers();
 app.UseStaticFiles();

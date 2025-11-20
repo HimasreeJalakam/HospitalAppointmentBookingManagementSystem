@@ -16,6 +16,7 @@ namespace Models.Interfaces
         Appointment FinishedAppointment(int appointmentId);
         void SoftDelete(int appointmentId);
         List<object> GetAppointmentsByDoctorId(int doctorId);
+        public void UpdatePastAppointmentsStatus();
 
     }
 }
